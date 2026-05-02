@@ -1,4 +1,11 @@
 {
+  "name": "reco-india-monorepo",
+  "private": true,
+  "scripts": {
+    "install-frontend": "cd frontend && npm install",
+    "build-frontend": "cd frontend && npm run build",
+    "dev-frontend": "cd frontend && npm run dev"
+  },
   "dependencies": {
     "axios": "^1.15.2"
   }
