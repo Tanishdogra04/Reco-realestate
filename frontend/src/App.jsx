@@ -39,12 +39,19 @@ import PropertiesPage from "./pages/PropertiesPage";
 import EditProfile from "./pages/EditProfile";
 import SavedProperties from "./pages/SavedProperties";
 import Commercial from "./pages/Commercial";
+import ForgotPassword from "./pages/ForgotPassword";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminLogin from "./pages/AdminLogin";
 
 function App() {
   return (
     <Router>
       <ScrollToTop />
       <Routes>
+
+        {/* ================= ADMIN PORTAL ================= */}
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin-login" element={<AdminLogin />} />
 
         {/* ================= DASHBOARD (PROTECTED) ================= */}
         <Route 
@@ -132,6 +139,7 @@ function App() {
 
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
 
                   <Route path="/new-project" element={<NewProject />} />
                   <Route path="/ready-to-move" element={<ReadyToMove />} />

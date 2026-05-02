@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { loginUser } from "../api/api";
 import loginImage from "/images/luxury_card3.jpeg"; 
+import { ShieldCheck } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -23,8 +24,8 @@ const Login = () => {
         localStorage.setItem("token", response.token);
         localStorage.setItem("user", JSON.stringify(response.user));
         
-        // Redirect to intended destination or home
-        if (response.user.email === "superadmin@reco.com") {
+        // Redirect based on role
+        if (response.user.role === "admin") {
           navigate("/admin");
         } else {
           navigate(redirectPath);
@@ -137,40 +138,36 @@ const Login = () => {
             </button>
           </form>
 
-          <div className="text-center my-4 text-gray-300 font-black uppercase text-[10px] tracking-widest flex items-center gap-4">
-            <div className="flex-1 h-px bg-gray-100" /> Professional Access <div className="flex-1 h-px bg-gray-100" />
+          <div className="text-center my-6 text-gray-300 font-black uppercase text-[10px] tracking-widest flex items-center gap-4">
+            <div className="flex-1 h-px bg-gray-100" /> Secure Verification <div className="flex-1 h-px bg-gray-100" />
           </div>
 
-          <button
+          {/* Quick Admin Access (Special Request) */}
+          <button 
             type="button"
-            onClick={() => {
-              const demoUser = { fullName: "Test Professional", email: "test@reco.com", role: "broker", phone: "+91 9999999999" };
-              localStorage.setItem("token", "demo-token");
-              localStorage.setItem("user", JSON.stringify(demoUser));
-              navigate("/dashboard");
-            }}
-            className="w-full mb-6 bg-gray-900 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-green-600 transition-all shadow-xl shadow-green-900/10 flex items-center justify-center gap-3"
+            onClick={() => setFormData({ email: "admin@gmail.com", password: "admin123" })}
+            className="mb-4 w-full border-2 border-purple-100 bg-purple-50 text-purple-600 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-all flex items-center justify-center gap-2"
           >
-            🚀 Instant Demo Access
+            <ShieldCheck size={14} /> Quick Admin Access (Demo)
           </button>
 
           {/* Google & Apple Sign In */}
-          <div className="flex gap-4">
-            <button className="flex-1 border rounded-full py-2 flex items-center justify-center gap-2 hover:bg-gray-100">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button className="flex-1 border rounded-full py-2.5 flex items-center justify-center gap-2 hover:bg-gray-50 transition-all text-sm font-medium">
               <img
                 src="https://www.svgrepo.com/show/355037/google.svg"
                 alt="Google"
                 className="w-5 h-5"
               />
-              Sign in with Google
+              Google
             </button>
-            <button className="flex-1 border rounded-full py-2 flex items-center justify-center gap-2 hover:bg-gray-100">
+            <button className="flex-1 border rounded-full py-2.5 flex items-center justify-center gap-2 hover:bg-gray-50 transition-all text-sm font-medium">
               <img
-                src="https://www.svgrepo.com/show/355037/apple.svg"
+                src="https://www.svgrepo.com/show/511330/apple-173.svg"
                 alt="Apple"
                 className="w-5 h-5"
               />
-              Sign in with Apple
+              Apple
             </button>
           </div>
 

@@ -9,7 +9,7 @@ const propertyCategories = [
     icon: <Home className="w-10 h-10 text-green-600 mb-4" />,
     path: "/properties/residential",
     count: "1,200+ Listings",
-    img: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop"
+    img: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=2070&auto=format&fit=crop"
   },
   {
     title: "Commercial",
@@ -17,7 +17,7 @@ const propertyCategories = [
     icon: <Building2 className="w-10 h-10 text-orange-500 mb-4" />,
     path: "/properties/commercial",
     count: "850+ Listings",
-    img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop"
+    img: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2069&auto=format&fit=crop"
   },
   {
     title: "Industrial",

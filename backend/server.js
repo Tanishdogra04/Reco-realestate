@@ -28,10 +28,14 @@ connectDB();
 // Route files
 const propertyRoutes = require('./routes/propertyRoutes');
 const authRoutes = require('./routes/authRoutes');
+const enquiryRoutes = require('./routes/enquiryRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
 
 // Mount routers
 app.use('/api/properties', propertyRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/enquiries', enquiryRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {

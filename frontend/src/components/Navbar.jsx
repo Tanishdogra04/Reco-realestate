@@ -19,7 +19,8 @@ import {
   Heart,
   LayoutDashboard,
   LogOut,
-  ChevronDown
+  ChevronDown,
+  ShieldCheck
 } from "lucide-react";
 import logo from "/images/Logreco.png";
 
@@ -135,6 +136,11 @@ const Navbar = () => {
                         <Link to="/saved-properties" className="flex items-center gap-3 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-2xl transition-all">
                           <Heart size={16} /> Saved Properties
                         </Link>
+                        {user.role === 'admin' && (
+                          <Link to="/admin" className="flex items-center gap-3 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-purple-600 hover:bg-purple-50 rounded-2xl transition-all">
+                            <ShieldCheck size={16} /> Admin Console
+                          </Link>
+                        )}
                         <Link to="/dashboard" className="flex items-center gap-3 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-2xl transition-all">
                           <LayoutDashboard size={16} /> Dashboard
                         </Link>
@@ -198,6 +204,13 @@ const Navbar = () => {
             </div>
           </div>
           <nav className="flex-1 px-8 space-y-3 overflow-y-auto custom-scrollbar">
+            {token && user.role === 'admin' && (
+              <Link to="/admin" className="group flex items-center gap-4 p-5 bg-purple-50 rounded-[24px] shadow-sm hover:bg-purple-600 transition-all duration-500" onClick={() => setMenuOpen(false)}>
+                <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-700"><ShieldCheck size={20} /></div>
+                <div className="flex-1"><p className="font-black text-[13px] text-purple-900 group-hover:text-white uppercase tracking-tight">Admin Console</p></div>
+                <ArrowRight size={16} className="text-purple-300 group-hover:text-white ml-auto" />
+              </Link>
+            )}
             {navLinks.map((link, i) => (
               <Link key={i} to={link.path} className="group flex items-center gap-4 p-5 bg-white rounded-[24px] shadow-sm hover:bg-green-600 transition-all duration-500" onClick={() => setMenuOpen(false)}>
                 <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-700">{link.icon}</div>

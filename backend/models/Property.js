@@ -54,9 +54,27 @@ const propertySchema = new mongoose.Schema({
     type: String,
     default: 'East'
   },
+  type: {
+    type: String,
+    enum: ['sale', 'rent'],
+    required: [true, 'Please specify if property is for sale or rent']
+  },
+  availability: {
+    type: String,
+    enum: ['available', 'sold'],
+    default: 'available'
+  },
+  description: {
+    type: String,
+    required: [true, 'Please add a description']
+  },
   image: {
     type: String,
     default: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1973&auto=format&fit=crop'
+  },
+  images: {
+    type: [String],
+    default: []
   },
   amenities: {
     type: [String],
@@ -66,6 +84,11 @@ const propertySchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'User',
     required: true
+  },
+  agent: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'User',
+    default: null
   },
   createdAt: {
     type: Date,

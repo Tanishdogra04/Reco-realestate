@@ -374,7 +374,7 @@ export default function PropertySection() {
     {/* Investment Card */}
     <div className="property-card bg-white border border-yellow-400 rounded-xl overflow-hidden shadow-md" data-category="investment">
       <div className="relative">
-        <img src={ready} alt="Investment Plot" className="w-full h-48 object-cover" />
+        <img src={land} alt="Investment Plot" className="w-full h-48 object-cover" />
         <span className="absolute top-2 left-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded">
           Investment Plot
         </span>

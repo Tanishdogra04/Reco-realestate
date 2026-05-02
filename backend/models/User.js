@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['customer', 'broker', 'client'],
+    enum: ['customer', 'broker', 'client', 'admin', 'agent'],
     default: 'customer'
   },
   password: {
@@ -46,6 +46,23 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+  otp: {
+    type: String,
+    default: null
+  },
+  otpExpires: {
+    type: Date,
+    default: null
+  },
+  status: {
+    type: String,
+    enum: ['active', 'blocked'],
+    default: 'active'
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -53,9 +70,12 @@ const userSchema = new mongoose.Schema({
 });
 
 // Encrypt password using bcrypt
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function () {
+  if (this.isModified('email')) {
+    this.email = this.email.toLowerCase();
+  }
   if (!this.isModified('password')) {
-    next();
+    return;
   }
 
   const salt = await bcrypt.genSalt(10);
