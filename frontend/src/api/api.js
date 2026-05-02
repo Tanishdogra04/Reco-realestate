@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://localhost:5001/api',
+  baseURL: 'https://reco-realestate-gvn8.onrender.com/api',
 });
 
 // Add a request interceptor to include the JWT token
