@@ -1,12 +1,14 @@
 {
-  "name": "reco-india-monorepo",
+  "name": "reco-india-platform",
   "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
-    "install": "cd frontend && npm install",
-    "build": "cd frontend && npm run build",
-    "dev": "cd frontend && npm run dev"
-  },
-  "dependencies": {
-    "axios": "^1.15.2"
+    "install-all": "npm install",
+    "build": "npm run build --workspace=frontend",
+    "start-frontend": "npm run dev --workspace=frontend",
+    "start-backend": "npm run dev --workspace=backend"
   }
 }
