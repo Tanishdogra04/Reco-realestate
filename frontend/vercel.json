@@ -3,6 +3,10 @@
   "public": true,
   "buildCommand": "npm run build",
   "installCommand": "npm install",
-  "framework": "vite",
-  "rootDirectory": "frontend"
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
