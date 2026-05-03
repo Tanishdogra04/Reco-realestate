@@ -102,6 +102,12 @@ const Advantage = () => {
   <button
     className="bg-black text-white text-sm font-semibold px-6 py-3 rounded-lg mb-6
       hover:bg-gray-900 hover:shadow-md hover:scale-105 transition-all duration-300 ease-in-out"
+    onClick={() => {
+      const section = document.getElementById("hot-properties");
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth" });
+      }
+    }}
   >
     Find the best for you
   </button>

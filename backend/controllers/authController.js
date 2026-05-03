@@ -9,7 +9,7 @@ const crypto = require('crypto');
 exports.register = async (req, res) => {
   try {
     const { fullName, phone, password, role, agency, license } = req.body;
-    const email = req.body.email.toLowerCase();
+    const email = req.body.email.toLowerCase().trim();
 
     // Check if user already exists
     let existingUser = await User.findOne({ email });
@@ -35,37 +35,29 @@ exports.register = async (req, res) => {
       isVerified: false
     });
 
-    // Send OTP via Email
-    try {
-      await sendEmail({
-        email: user.email,
-        subject: 'Verify your RECO India Account',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e1e1e1; border-radius: 10px;">
-            <h2 style="color: #16a34a; text-align: center;">Welcome to RECO India</h2>
-            <p>Thank you for signing up. Please use the following One-Time Password (OTP) to verify your account:</p>
-            <div style="background-color: #f3f4f6; padding: 15px; text-align: center; border-radius: 8px; margin: 20px 0;">
-              <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #111827;">${otp}</span>
-            </div>
-            <p>This code will expire in 10 minutes. If you did not request this, please ignore this email.</p>
-            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-            <p style="font-size: 12px; color: #6b7280; text-align: center;">&copy; 2025 RECO India Platform. All rights reserved.</p>
+    // Send OTP via Email asynchronously to speed up response
+    sendEmail({
+      email: user.email,
+      subject: 'Verify your RECO India Account',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e1e1e1; border-radius: 10px;">
+          <h2 style="color: #16a34a; text-align: center;">Welcome to RECO India</h2>
+          <p>Thank you for signing up. Please use the following One-Time Password (OTP) to verify your account:</p>
+          <div style="background-color: #f3f4f6; padding: 15px; text-align: center; border-radius: 8px; margin: 20px 0;">
+            <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #111827;">${otp}</span>
           </div>
-        `
-      });
+          <p>This code will expire in 10 minutes. If you did not request this, please ignore this email.</p>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+          <p style="font-size: 12px; color: #6b7280; text-align: center;">&copy; 2025 RECO India Platform. All rights reserved.</p>
+        </div>
+      `
+    }).catch(err => console.error('Background Email Error:', err));
 
-      res.status(201).json({
-        success: true,
-        message: 'OTP sent to email. Please verify to complete signup.',
-        email: user.email
-      });
-    } catch (err) {
-      console.error(err);
-      user.otp = null;
-      user.otpExpires = null;
-      await user.save({ validateBeforeSave: false });
-      return res.status(500).json({ success: false, error: 'Email could not be sent' });
-    }
+    res.status(201).json({
+      success: true,
+      message: 'OTP sent to email. Please verify to complete signup.',
+      email: user.email
+    });
   } catch (err) {
     res.status(400).json({
       success: false,
@@ -79,8 +71,8 @@ exports.register = async (req, res) => {
 // @access  Public
 exports.verifyOTP = async (req, res) => {
   try {
-    const { otp } = req.body;
-    const email = req.body.email.toLowerCase();
+    const otp = String(req.body.otp).trim();
+    const email = req.body.email.toLowerCase().trim();
 
     const user = await User.findOne({ 
       email, 
@@ -110,7 +102,7 @@ exports.verifyOTP = async (req, res) => {
 // @access  Public
 exports.resendOTP = async (req, res) => {
   try {
-    const email = req.body.email.toLowerCase();
+    const email = req.body.email.toLowerCase().trim();
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -122,11 +114,11 @@ exports.resendOTP = async (req, res) => {
     user.otpExpires = Date.now() + 10 * 60 * 1000;
     await user.save();
 
-    await sendEmail({
+    sendEmail({
       email: user.email,
       subject: 'Your new RECO India OTP',
       html: `<p>Your new verification code is: <b>${otp}</b></p>`
-    });
+    }).catch(err => console.error('Background Email Error:', err));
 
     res.status(200).json({ 
       success: true, 
@@ -143,7 +135,7 @@ exports.resendOTP = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { password } = req.body;
-    const email = req.body.email.toLowerCase();
+    const email = req.body.email.toLowerCase().trim();
 
     if (!email || !password) {
       return res.status(400).json({ success: false, error: 'Please provide an email and password' });
@@ -175,7 +167,7 @@ exports.login = async (req, res) => {
 // @access  Public
 exports.forgotPassword = async (req, res) => {
   try {
-    const email = req.body.email.toLowerCase();
+    const email = req.body.email.toLowerCase().trim();
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -188,7 +180,7 @@ exports.forgotPassword = async (req, res) => {
     user.otpExpires = Date.now() + 10 * 60 * 1000;
     await user.save();
 
-    await sendEmail({
+    sendEmail({
       email: user.email,
       subject: 'Reset your RECO India Password',
       html: `
@@ -199,7 +191,7 @@ exports.forgotPassword = async (req, res) => {
           <p>If you did not request this, please ignore this email.</p>
         </div>
       `
-    });
+    }).catch(err => console.error('Background Email Error:', err));
 
     res.status(200).json({ success: true, message: 'Recovery code sent to email' });
   } catch (err) {

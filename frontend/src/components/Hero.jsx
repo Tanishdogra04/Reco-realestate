@@ -33,6 +33,12 @@ const Hero = () => {
           <button
             aria-label="Find the best property for you"
             className="bg-black text-white px-6 py-2 rounded hover:bg-gray-900"
+            onClick={() => {
+              const section = document.getElementById("hot-properties");
+              if (section) {
+                section.scrollIntoView({ behavior: "smooth" });
+              }
+            }}
           >
             Find the best for you
           </button>

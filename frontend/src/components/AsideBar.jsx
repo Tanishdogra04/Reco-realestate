@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { MessageCircle, PhoneCall, FileText } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import AIChatWidget from "./AIChatWidget";
 
 const asideOptions = [
   { id: 1, label: "Talk to Assistant", Icon: MessageCircle, message: "Chat with our Ai assistant", action: "chat" },
@@ -13,11 +14,12 @@ const asideOptions = [
 const AsideBar = () => {
   const [hovered, setHovered] = useState(null);
   const [atBottom, setAtBottom] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleAction = (opt) => {
     if (opt.action === "chat") {
-      alert("AI Assistant Chat integration coming soon!");
+      setIsChatOpen((prev) => !prev);
     } else if (opt.action.startsWith("http") || opt.action.startsWith("tel")) {
       window.open(opt.action, opt.action.startsWith("http") ? "_blank" : "_self");
     } else {
@@ -51,6 +53,8 @@ const AsideBar = () => {
 
   return (
     <>
+      <AIChatWidget isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+      
       {/* Floating aside (only if not at bottom) */}
       {!atBottom && (
         <nav
