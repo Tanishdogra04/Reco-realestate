@@ -1,9 +1,11 @@
 import React from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
+import { createProperty } from "../api/api";
 
 const PostPropertyStep4 = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   if (!state) {
     return (
@@ -32,10 +34,42 @@ const PostPropertyStep4 = () => {
     (_, idx) => idx !== coverIndex
   );
 
-  const handleSubmit = () => {
-    console.log("FINAL LISTING DATA:", state);
-    alert("✅ Property submitted successfully!");
-    navigate("/");
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      // Map frontend data to backend model
+      const propertyData = {
+        title: basicInfo.title,
+        category: category.toLowerCase() === "land" ? "plots" : category.toLowerCase(),
+        location: basicInfo.location,
+        bhk: basicInfo.bhk || null,
+        area: Number(basicInfo.area),
+        status: details.possession || "Ready to Move",
+        price: Number(basicInfo.price),
+        developer: basicInfo.developer || "N/A",
+        rera: basicInfo.rera || "N/A",
+        possession: details.possession || "Immediate",
+        furnishing: basicInfo.furnishing || "Unfurnished",
+        facing: details.facing || "East",
+        type: purpose.toLowerCase() === "rent" ? "rent" : "sale",
+        description: basicInfo.description,
+        // Mock image upload: using the preview URLs or placeholders
+        image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1973&auto=format&fit=crop",
+        images: ["https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1973&auto=format&fit=crop"],
+        amenities: details.amenities || []
+      };
+
+      console.log("SENDING TO BACKEND:", propertyData);
+      await createProperty(propertyData);
+      
+      alert("✅ Property submitted successfully!");
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Submission failed:", err);
+      alert("❌ Failed to submit property. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -157,9 +191,10 @@ const PostPropertyStep4 = () => {
 
           <button
             onClick={handleSubmit}
-            className="bg-green-600 hover:bg-green-700 text-white px-10 py-3 rounded-lg font-semibold"
+            disabled={isSubmitting}
+            className={`bg-green-600 hover:bg-green-700 text-white px-10 py-3 rounded-lg font-semibold transition ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            Submit Listing
+            {isSubmitting ? "Submitting..." : "Submit Listing"}
           </button>
         </div>
       </main>

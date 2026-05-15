@@ -4,7 +4,7 @@ const enquirySchema = new mongoose.Schema({
   property: {
     type: mongoose.Schema.ObjectId,
     ref: 'Property',
-    required: true
+    required: false
   },
   user: {
     type: mongoose.Schema.ObjectId,
@@ -21,6 +21,18 @@ const enquirySchema = new mongoose.Schema({
   phone: {
     type: String,
     required: [true, 'Please add a phone number']
+  },
+  city: {
+    type: String
+  },
+  propertyType: {
+    type: String
+  },
+  budget: {
+    type: String
+  },
+  inquiryType: {
+    type: String
   },
   message: {
     type: String,

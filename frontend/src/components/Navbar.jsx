@@ -39,6 +39,14 @@ const Navbar = () => {
     window.location.reload();
   };
 
+  const handleLogoClick = (e) => {
+    if (location.pathname === "/") {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    setMenuOpen(false);
+  };
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", handleScroll);
@@ -74,7 +82,7 @@ const Navbar = () => {
         <div className="max-w-[1600px] mx-auto px-6 md:px-10 flex items-center justify-between">
           
           {/* LEFT: BRANDING */}
-          <Link to="/" className="shrink-0 flex items-center gap-3 group">
+          <Link to="/" onClick={handleLogoClick} className="shrink-0 flex items-center gap-3 group">
             <img
               src={logo}
               alt="RECO Logo"
@@ -187,7 +195,9 @@ const Navbar = () => {
         <div className={`absolute inset-0 bg-gray-900/60 backdrop-blur-md transition-opacity duration-700 ${menuOpen ? "opacity-100" : "opacity-0"}`} onClick={() => setMenuOpen(false)} />
         <div className={`absolute right-0 top-0 bottom-0 w-[85%] bg-[#F5EFE7] shadow-2xl transition-transform duration-700 cubic-bezier(0.4, 0, 0.2, 1) ${menuOpen ? "translate-x-0" : "translate-x-full"} overflow-y-auto flex flex-col rounded-l-[48px]`}>
           <div className="p-8 pb-4 flex items-center justify-between">
-            <img src={logo} alt="Logo" className="h-8 w-auto" />
+            <Link to="/" onClick={handleLogoClick}>
+              <img src={logo} alt="RECO Logo" className="h-8 w-auto" />
+            </Link>
             <button onClick={() => setMenuOpen(false)} className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-gray-900 shadow-sm"><X size={20} /></button>
           </div>
           <div className="px-8 mb-8">

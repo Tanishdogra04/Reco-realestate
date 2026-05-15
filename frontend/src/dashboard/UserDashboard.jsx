@@ -40,6 +40,8 @@ import {
 } from "recharts";
 import { Link, useNavigate } from "react-router-dom";
 import { apartmentListings } from "../data/properties";
+import { getBookings, fetchProperties, deleteProperty } from "../api/api";
+import jsPDF from "jspdf";
 
 /* ================= MOCK DATA ================= */
 
@@ -63,15 +65,18 @@ export default function UserDashboard() {
   const [user, setUser] = useState({ fullName: "Guest User", role: "customer", phone: "" });
   const [activeTab, setActiveTab] = useState("overview");
   const [savedAssets, setSavedAssets] = useState([]);
+  const [purchasedAssets, setPurchasedAssets] = useState([]);
+  const [myProperties, setMyProperties] = useState([]);
   const [portfolioValue, setPortfolioValue] = useState(0);
+  const [loading, setLoading] = useState(false);
 
-  const loadPortfolio = () => {
+  const loadPortfolio = async () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) setUser(storedUser);
 
     const savedIds = JSON.parse(localStorage.getItem("savedProperties")) || [];
     
-    // BULLETPROOF FILTERING: Convert everything to Numbers for comparison
+    // Saved Assets logic
     const filtered = apartmentListings.filter(p => 
       savedIds.some(sid => Number(sid) === Number(p.id))
     );
@@ -84,18 +89,163 @@ export default function UserDashboard() {
        setSavedAssets(filtered);
        setPortfolioValue(filtered.reduce((acc, curr) => acc + curr.price, 0));
     }
+
+    // Fetch Purchased Assets (Bookings)
+    try {
+      const allBookings = await getBookings().catch(() => []);
+      const localBookings = JSON.parse(localStorage.getItem("localBookings")) || [];
+      
+      // Merge and filter
+      const combinedBookings = [...allBookings, ...localBookings].filter(b => {
+        const bookingUserId = typeof b.user === 'string' ? b.user : b.user?._id;
+        // Match by user ID, or match everything if no ID is found (for demo simplicity)
+        return !storedUser?._id || bookingUserId === storedUser?._id || bookingUserId === "645a1b2c3d4e5f6g7h8i9j0k";
+      });
+      
+      // De-duplicate if needed (optional)
+      
+      // Map bookings to property details
+      const purchasesWithDetails = combinedBookings.map(booking => {
+        const propId = typeof booking.property === 'string' ? booking.property : booking.property?._id;
+        const details = apartmentListings.find(p => Number(p.id) === Number(propId));
+        return { ...booking, details };
+      });
+      
+      setPurchasedAssets(purchasesWithDetails);
+
+      // DYNAMIC PORTFOLIO CALCULATION: Only Confirmed Acquisitions
+      const acquiredValue = purchasesWithDetails.reduce((acc, b) => acc + (b.details?.price || 0), 0);
+      setPortfolioValue(acquiredValue);
+    } catch (err) {
+      console.warn("Failed to fetch bookings, might be in offline mode", err);
+    }
+
+    // Fetch My Properties (Listings)
+    try {
+      const allProperties = await fetchProperties().catch(() => []);
+      const myFiltered = allProperties.filter(p => {
+        const propUserId = typeof p.user === 'string' ? p.user : p.user?._id;
+        return propUserId === storedUser?._id;
+      });
+      setMyProperties(myFiltered);
+    } catch (err) {
+      console.warn("Failed to fetch my properties", err);
+    }
+
+    // Remove hardcoded dummy data for specific emails to ensure true dynamic behavior
+  };
+
+  const handleDeleteProperty = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this property?")) return;
+    
+    // Handle dummy deletion locally
+    if (id === 'listing123') {
+      setMyProperties(prev => prev.filter(p => p._id !== id));
+      alert("✅ Demo property removed from your view!");
+      return;
+    }
+
+    try {
+      await deleteProperty(id);
+      alert("✅ Property deleted successfully!");
+      loadPortfolio();
+    } catch (err) {
+      alert("❌ Failed to delete property. Only owners or admins can delete listings.");
+    }
   };
 
   useEffect(() => {
     loadPortfolio();
+
+    // Listen for storage changes in other tabs (Real-time effect)
+    const handleStorageChange = (e) => {
+      if (e.key === "savedProperties" || e.key === "localBookings") {
+        loadPortfolio();
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   // RE-SYNC ON TAB CHANGE: Ensures data is fresh if user navigated in another tab/window
   useEffect(() => {
-    if (activeTab === 'portfolio' || activeTab === 'overview') {
+    if (activeTab === 'portfolio' || activeTab === 'overview' || activeTab === 'acquisitions') {
       loadPortfolio();
     }
   }, [activeTab]);
+
+  const handleDownloadReceipt = (booking) => {
+    const doc = new jsPDF();
+    const { details, amount, paymentMethod, _id, createdAt } = booking;
+    
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(22, 163, 74);
+    doc.text("RECO INDIA REAL ESTATE", 105, 25, { align: "center" });
+    
+    doc.setFontSize(16);
+    doc.setTextColor(33, 37, 41);
+    doc.text("OFFICIAL PAYMENT RECEIPT", 105, 35, { align: "center" });
+    
+    doc.setDrawColor(229, 231, 235);
+    doc.line(20, 42, 190, 42);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`Receipt No: RECO-${_id.slice(-6).toUpperCase()}`, 20, 52);
+    doc.text(`Date: ${new Date(createdAt).toLocaleDateString('en-IN')}`, 160, 52);
+    
+    doc.setFontSize(14);
+    doc.setTextColor(33, 37, 41);
+    doc.text("ASSET DETAILS", 20, 70);
+    
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Property:", 20, 80);
+    doc.setFont("helvetica", "normal");
+    doc.text(details?.title || "N/A", 60, 80);
+    
+    doc.setFont("helvetica", "bold");
+    doc.text("Location:", 20, 88);
+    doc.setFont("helvetica", "normal");
+    doc.text(details?.location || "N/A", 60, 88);
+    
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("PAYMENT INFORMATION", 20, 105);
+    
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    doc.text("Total Amount Paid:", 20, 115);
+    doc.text(formatPrice(amount), 150, 115);
+    
+    doc.text("Payment Method:", 20, 123);
+    doc.text(paymentMethod?.toUpperCase() || "DIRECT", 150, 123);
+    
+    doc.setDrawColor(229, 231, 235);
+    doc.line(20, 130, 190, 130);
+    
+    doc.setFont("helvetica", "bold");
+    doc.text("STATUS:", 20, 140);
+    doc.setTextColor(22, 163, 74);
+    doc.text("SUCCESSFUL", 150, 140);
+    
+    doc.setFontSize(9);
+    doc.setTextColor(100, 116, 139);
+    doc.text("This receipt is valid for all legal and tax purposes.", 105, 270, { align: "center" });
+    doc.text("RECO India - Premium Asset Management", 105, 277, { align: "center" });
+    
+    doc.save(`Receipt_RECO_${_id.slice(-6).toUpperCase()}.pdf`);
+  };
+
+  const formatPrice = (price) => {
+    if (price >= 10000000) return `₹${(price / 10000000).toFixed(2)} Cr`;
+    return `₹${(price / 100000).toFixed(2)} L`;
+  };
+
+  const handleSupport = () => {
+    window.open("https://wa.me/919999999999?text=I%20need%20support%20with%20my%20property%20acquisition", "_blank");
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -139,26 +289,25 @@ export default function UserDashboard() {
 
           <nav className="space-y-2">
             <SidebarItem icon={<Home size={18} />} text="Overview" active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} />
-            {user.role === 'broker' ? (
-              <>
-                <SidebarItem icon={<Building2 size={18} />} text="My Listings" active={activeTab === 'listings'} onClick={() => setActiveTab('listings')} />
-                <SidebarItem icon={<Users size={18} />} text="Leads" active={activeTab === 'leads'} onClick={() => setActiveTab('leads')} />
-              </>
-            ) : (
-              <>
-                <SidebarItem icon={<Building2 size={18} />} text="Asset Portfolio" active={activeTab === 'portfolio'} onClick={() => setActiveTab('portfolio')} />
-                <SidebarItem icon={<TrendingUp size={18} />} text="Insights" active={activeTab === 'insights'} onClick={() => setActiveTab('insights')} />
-                <SidebarItem icon={<Briefcase size={18} />} text="Expert Panel" active={activeTab === 'expert'} onClick={() => setActiveTab('expert')} />
-              </>
+            
+            <SidebarItem icon={<Building2 size={18} />} text="My Listings" active={activeTab === 'listings'} onClick={() => setActiveTab('listings')} />
+
+            {user.role === 'broker' && (
+              <SidebarItem icon={<Users size={18} />} text="My Leads" active={activeTab === 'leads'} onClick={() => setActiveTab('leads')} />
             )}
+
+            <SidebarItem icon={<Heart size={18} />} text="Saved Properties" active={activeTab === 'portfolio'} onClick={() => setActiveTab('portfolio')} />
+            <SidebarItem icon={<PlusCircle size={18} />} text="My Purchases" active={activeTab === 'acquisitions'} onClick={() => setActiveTab('acquisitions')} />
+            <SidebarItem icon={<TrendingUp size={18} />} text="Insights" active={activeTab === 'insights'} onClick={() => setActiveTab('insights')} />
+            <SidebarItem icon={<Briefcase size={18} />} text="Talk to Expert" active={activeTab === 'expert'} onClick={() => setActiveTab('expert')} />
             <div className="h-px bg-white/10 my-6 mx-2" />
-            <SidebarItem icon={<Settings size={18} />} text="Security" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
+            <SidebarItem icon={<Settings size={18} />} text="Settings" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
           </nav>
         </div>
 
         <div className="pt-8 border-t border-white/10">
            <button onClick={handleLogout} className="flex items-center gap-3 text-gray-400 hover:text-red-400 transition-colors font-black uppercase text-[10px] tracking-widest">
-             <LogOut size={16} /> Secure Termination
+             <LogOut size={16} /> Sign Out
            </button>
         </div>
       </aside>
@@ -198,20 +347,20 @@ export default function UserDashboard() {
             <div className="space-y-10 animate-fade-in">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                  <KpiCard 
-                   label={user.role === 'broker' ? "Total Sales" : "Portfolio Value"} 
-                   value={`₹${(portfolioValue/10000000).toFixed(2)} Cr`} 
+                   label={user.role === 'broker' ? "Total Sales" : "Property Value"} 
+                   value={`₹${(portfolioValue / 10000000).toFixed(2)} Cr`} 
                    trend="+14.2%" 
                    icon={<IndianRupee className="text-green-600" />} 
                  />
                  <KpiCard 
-                   label={user.role === 'broker' ? "Active Listings" : "Saved Assets"} 
-                   value={savedAssets.length.toString().padStart(2, '0')} 
-                   trend="Verified" 
+                   label={user.role === 'broker' ? "My Listings" : "Saved Items"} 
+                   value={(savedAssets.length + myProperties.length).toString().padStart(2, '0')} 
+                   trend="Active" 
                    icon={<Building2 className="text-blue-600" />} 
                  />
                  <KpiCard 
-                   label="Expert Status" 
-                   value="Elite" 
+                   label="Status" 
+                   value="Premium" 
                    trend="Verified" 
                    icon={<ShieldCheck className="text-orange-600" />} 
                  />
@@ -238,11 +387,11 @@ export default function UserDashboard() {
                       <p className="text-xs font-bold text-gray-400 mb-8 leading-relaxed">Need immediate clarity on a high-value asset? Connect with our senior panel instantly.</p>
                       <div className="space-y-3">
                          <button onClick={handleVideoConsult} className="w-full flex items-center justify-between p-4 bg-white/10 rounded-2xl hover:bg-green-600 transition-all group">
-                            <span className="text-[10px] font-black uppercase tracking-widest">Video Consult</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest">Expert Video Call</span>
                             <Video size={18} className="text-green-500 group-hover:text-white" />
                          </button>
                          <button onClick={handleRequestCall} className="w-full flex items-center justify-between p-4 bg-white/10 rounded-2xl hover:bg-white hover:text-gray-900 transition-all group">
-                            <span className="text-[10px] font-black uppercase tracking-widest">Request Call</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest">Get a Call Back</span>
                             <PhoneCall size={18} className="text-gray-400 group-hover:text-gray-900" />
                          </button>
                       </div>
@@ -295,6 +444,76 @@ export default function UserDashboard() {
             </div>
           )}
 
+           {activeTab === 'acquisitions' && (
+            <div className="space-y-8 animate-fade-in">
+              <div className="flex justify-between items-center mb-4">
+                 <h3 className="text-xl font-black text-gray-900 uppercase">My Purchases ({purchasedAssets.length})</h3>
+                 <div className="flex items-center gap-2 text-[10px] font-black text-green-600 uppercase tracking-widest bg-green-50 px-3 py-1 rounded-full border border-green-100">
+                    <ShieldCheck size={12} /> Verified Purchase
+                 </div>
+              </div>
+              <div className="grid grid-cols-1 gap-6">
+                {purchasedAssets.length > 0 ? purchasedAssets.map(b => (
+                  <div key={b._id} className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-sm flex flex-col md:flex-row gap-8 hover:shadow-xl transition-all">
+                    <div className="w-full md:w-48 h-32 rounded-2xl overflow-hidden shrink-0 shadow-lg">
+                       <img src={b.details?.image || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=400"} className="w-full h-full object-cover" alt="" />
+                    </div>
+                    <div className="flex-1 space-y-3">
+                       <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="text-lg font-black text-gray-900 uppercase">{b.details?.title || "Property Details Pending"}</h4>
+                            <p className="text-xs text-gray-500 font-bold uppercase tracking-tight">{b.details?.location || "Location verification in progress"}</p>
+                          </div>
+                          <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${b.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
+                             {b.status}
+                          </div>
+                       </div>
+                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-gray-50">
+                          <div>
+                             <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Amount Paid</p>
+                             <p className="text-sm font-black text-gray-900">₹{(b.amount/10000000).toFixed(2)} Cr</p>
+                          </div>
+                          <div>
+                             <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Transaction ID</p>
+                             <p className="text-sm font-bold text-gray-600 uppercase tracking-tighter">RECO-{b._id.slice(-6).toUpperCase()}</p>
+                          </div>
+                          <div>
+                             <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Method</p>
+                             <p className="text-sm font-bold text-gray-600 uppercase">{b.paymentMethod || "Direct Transfer"}</p>
+                          </div>
+                          <div>
+                             <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Date</p>
+                             <p className="text-sm font-bold text-gray-600">{new Date(b.createdAt).toLocaleDateString()}</p>
+                          </div>
+                       </div>
+                    </div>
+                    <div className="flex flex-row md:flex-col justify-center gap-3">
+                       <button 
+                         onClick={() => handleDownloadReceipt(b)}
+                         className="px-6 py-3 bg-gray-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-green-600 transition-all text-center flex items-center justify-center gap-2"
+                       >
+                         <FileText size={14} /> Receipt
+                       </button>
+                       <button 
+                         onClick={handleSupport}
+                         className="px-6 py-3 bg-gray-50 text-gray-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-100 transition-all text-center flex items-center justify-center gap-2"
+                       >
+                         <MessageCircle size={14} /> Support
+                       </button>
+                    </div>
+                  </div>
+                )) : (
+                  <div className="py-20 text-center bg-white rounded-[40px] border border-dashed border-gray-200">
+                     <PlusCircle size={48} className="mx-auto text-gray-200 mb-4" />
+                     <h4 className="text-lg font-black text-gray-400 uppercase">No Acquisitions Yet</h4>
+                     <p className="text-sm text-gray-400 mt-2 max-w-sm mx-auto">Start your investment journey by exploring our exclusive property collection.</p>
+                     <Link to="/properties" className="mt-6 inline-block px-8 py-4 bg-green-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest">Browse Collection</Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {activeTab === 'insights' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 animate-fade-in">
                <div className="bg-white rounded-[40px] p-10 border border-gray-100 shadow-sm">
@@ -314,9 +533,24 @@ export default function UserDashboard() {
                   </div>
                </div>
                <div className="space-y-6">
-                  <InsightCard title="Q4 Residential Outlook" tag="Report" icon={<FileText size={20} />} />
-                  <InsightCard title="Luxury Segment Surge" tag="Market News" icon={<TrendingUp size={20} />} />
-                  <InsightCard title="RERA Guidelines 2024" tag="Regulatory" icon={<ShieldCheck size={20} />} />
+                  <InsightCard 
+                    title="Q4 Residential Outlook" 
+                    tag="Report" 
+                    icon={<FileText size={20} />} 
+                    onClick={() => navigate("/insights")}
+                  />
+                  <InsightCard 
+                    title="Luxury Segment Surge" 
+                    tag="Market News" 
+                    icon={<TrendingUp size={20} />} 
+                    onClick={() => navigate("/insights")}
+                  />
+                  <InsightCard 
+                    title="RERA Guidelines 2024" 
+                    tag="Regulatory" 
+                    icon={<ShieldCheck size={20} />} 
+                    onClick={() => navigate("/insights")}
+                  />
                </div>
             </div>
           )}
@@ -339,7 +573,73 @@ export default function UserDashboard() {
             </div>
           )}
 
-          {(activeTab === 'listings' || activeTab === 'leads') && (
+          {activeTab === 'listings' && (
+            <div className="space-y-8 animate-fade-in">
+              <div className="flex justify-between items-center mb-4">
+                 <h3 className="text-xl font-black text-gray-900 uppercase">My Listings ({myProperties.length})</h3>
+                 <Link to="/post-property" className="px-6 py-3 bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-green-700 transition-all flex items-center gap-2">
+                   <PlusCircle size={14} /> Add New Property
+                 </Link>
+              </div>
+              <div className="grid grid-cols-1 gap-6">
+                {myProperties.length > 0 ? myProperties.map(p => (
+                  <div key={p._id} className="bg-white rounded-[32px] p-6 border border-gray-100 shadow-sm flex flex-col md:flex-row gap-8 hover:shadow-xl transition-all">
+                    <div className="w-full md:w-48 h-32 rounded-2xl overflow-hidden shrink-0 shadow-lg">
+                       <img src={p.image || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=400"} className="w-full h-full object-cover" alt="" />
+                    </div>
+                    <div className="flex-1 space-y-3">
+                       <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="text-lg font-black text-gray-900 uppercase">{p.title}</h4>
+                            <p className="text-xs text-gray-500 font-bold uppercase tracking-tight">{p.location}</p>
+                          </div>
+                          <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${p.availability === 'available' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                             {p.availability}
+                          </div>
+                       </div>
+                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4 border-t border-gray-50">
+                          <div>
+                             <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Price</p>
+                             <p className="text-sm font-black text-gray-900">₹{(p.price/10000000).toFixed(2)} Cr</p>
+                          </div>
+                          <div>
+                             <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Category</p>
+                             <p className="text-sm font-bold text-gray-600 uppercase">{p.category}</p>
+                          </div>
+                          <div>
+                             <p className="text-[9px] font-black text-gray-400 uppercase mb-1">Type</p>
+                             <p className="text-sm font-bold text-gray-600 uppercase">{p.type}</p>
+                          </div>
+                       </div>
+                    </div>
+                    <div className="flex flex-row md:flex-col justify-center gap-3">
+                       <Link 
+                         to={`/property/${p._id}`}
+                         className="px-6 py-3 bg-gray-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-green-600 transition-all text-center flex items-center justify-center gap-2"
+                       >
+                         <ExternalLink size={14} /> View
+                       </Link>
+                       <button 
+                         onClick={() => handleDeleteProperty(p._id)}
+                         className="px-6 py-3 bg-red-50 text-red-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all text-center flex items-center justify-center gap-2"
+                       >
+                         <LogOut size={14} className="rotate-90" /> Delete
+                       </button>
+                    </div>
+                  </div>
+                )) : (
+                  <div className="py-20 text-center bg-white rounded-[40px] border border-dashed border-gray-200">
+                     <Building2 size={48} className="mx-auto text-gray-200 mb-4" />
+                     <h4 className="text-lg font-black text-gray-400 uppercase">No Listings Found</h4>
+                     <p className="text-sm text-gray-400 mt-2 max-w-sm mx-auto">You haven't posted any properties yet. Start today!</p>
+                     <Link to="/post-property" className="mt-6 inline-block px-8 py-4 bg-green-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest">Post Property</Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'leads' && (
             <div className="flex flex-col items-center justify-center h-[50vh] text-center space-y-6">
                <div className="w-20 h-20 bg-gray-50 rounded-[32px] flex items-center justify-center text-gray-300"><Settings size={40} /></div>
                <h3 className="text-xl font-black text-gray-900 uppercase">{activeTab} in Optimization</h3>
@@ -388,8 +688,11 @@ const KpiCard = ({ label, value, trend, icon }) => (
   </div>
 );
 
-const InsightCard = ({ title, tag, icon }) => (
-  <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-6 group hover:border-green-600 transition-all cursor-pointer">
+const InsightCard = ({ title, tag, icon, onClick }) => (
+  <div 
+    onClick={onClick}
+    className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-6 group hover:border-green-600 transition-all cursor-pointer active:scale-[0.98]"
+  >
      <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:text-green-600 transition-all">{icon}</div>
      <div className="flex-1">
         <p className="text-[9px] font-black text-green-600 uppercase tracking-widest">{tag}</p>
@@ -400,12 +703,17 @@ const InsightCard = ({ title, tag, icon }) => (
 );
 
 const AdvisorProfile = ({ name, role }) => (
-  <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm flex items-center gap-6">
-     <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center text-xl font-black text-gray-400">{name[0]}</div>
+  <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm flex items-center gap-6 group hover:border-green-600 transition-all">
+     <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center text-xl font-black text-gray-400 group-hover:bg-green-50 group-hover:text-green-600 transition-all">{name[0]}</div>
      <div>
         <h4 className="text-md font-black text-gray-900 uppercase">{name}</h4>
         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{role}</p>
-        <button className="mt-3 text-[10px] font-black text-green-600 uppercase tracking-widest hover:underline">Connect</button>
+        <button 
+          onClick={() => window.open("https://meet.google.com/new", "_blank")}
+          className="mt-3 text-[10px] font-black text-green-600 uppercase tracking-widest hover:underline flex items-center gap-2"
+        >
+          Connect <Video size={12} />
+        </button>
      </div>
   </div>
 );

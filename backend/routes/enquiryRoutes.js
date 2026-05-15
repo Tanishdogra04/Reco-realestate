@@ -5,7 +5,7 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 
 router
   .route('/')
-  .post(createEnquiry)
+  .post(protect, createEnquiry)
   .get(protect, authorize('admin'), getEnquiries);
 
 module.exports = router;

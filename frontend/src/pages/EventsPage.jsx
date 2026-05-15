@@ -40,7 +40,7 @@ const upcomingEvents = [
     location: "Online (Global Stream)",
     type: "Webinar",
     category: "Virtual",
-    img: "https://images.unsplash.com/photo-1611348586840-fa91ec1b5f7e?q=80&w=2070&auto=format&fit=crop",
+    img: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=1200&q=80",
     attendees: "2,500+ Registered",
     featured: false,
     description: "A high-level briefing on global real estate trends and the Indian market's ROI potential in the post-RERA 2.0 era."
@@ -53,7 +53,7 @@ const upcomingEvents = [
     location: "Vasant Vihar & GK, Delhi",
     type: "Site Visit",
     category: "Physical",
-    img: "https://images.unsplash.com/photo-1628611225249-6c478a8ee461?q=80&w=2070&auto=format&fit=crop",
+    img: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=2070&auto=format&fit=crop",
     attendees: "15 Spots Left",
     featured: false,
     description: "Step inside the most exclusive pin codes of Delhi. A private tour of ready-to-move-in luxury floors and independent villas."
@@ -106,6 +106,18 @@ const EventsPage = () => {
   const [filter, setFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [showVideo, setShowVideo] = useState(false);
+  const [reminders, setReminders] = useState({});
+  const [toast, setToast] = useState(null);
+
+  const toggleReminder = (eventId, eventTitle) => {
+    const isSet = !reminders[eventId];
+    setReminders(prev => ({ ...prev, [eventId]: isSet }));
+    
+    if (isSet) {
+      setToast(`🔔 Reminder set! Please register yourself for the event and you will be updated about "${eventTitle}" shortly.`);
+      setTimeout(() => setToast(null), 5000);
+    }
+  };
 
   const filteredEvents = upcomingEvents.filter(event => {
     const matchesFilter = filter === "All" || event.type === filter || event.category === filter;
@@ -147,6 +159,26 @@ const EventsPage = () => {
 
   return (
     <div className="bg-[#FAFAFA] min-h-screen font-sans overflow-x-hidden">
+      {/* Premium Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ y: -100, opacity: 0, x: "-50%" }}
+            animate={{ y: 20, opacity: 1, x: "-50%" }}
+            exit={{ y: -100, opacity: 0, x: "-50%" }}
+            className="fixed top-20 left-1/2 z-[200] bg-gray-900 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-white/10 backdrop-blur-xl min-w-[320px] max-w-[90vw]"
+          >
+            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shrink-0">
+              <CheckCircle2 size={16} className="text-white" />
+            </div>
+            <p className="text-xs font-bold leading-relaxed">{toast}</p>
+            <button onClick={() => setToast(null)} className="ml-4 text-gray-500 hover:text-white transition-colors">
+               <ArrowRight size={14} className="rotate-45" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Video Modal Overlay */}
       <AnimatePresence>
         {showVideo && (
@@ -447,8 +479,18 @@ const EventsPage = () => {
                     >
                       Register Now
                     </button>
-                    <button className="w-12 h-12 sm:w-14 sm:h-14 bg-gray-50 rounded-xl sm:rounded-2xl flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-black transition-all group/btn">
-                      <Bell size={18} className="group-hover/btn:rotate-12 transition-transform" />
+                    <button 
+                      onClick={() => toggleReminder(event.id, event.title)}
+                      className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center transition-all group/btn ${
+                        reminders[event.id] 
+                          ? "bg-green-100 text-green-600 shadow-inner" 
+                          : "bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-black"
+                      }`}
+                    >
+                      <Bell 
+                        size={18} 
+                        className={`transition-transform ${reminders[event.id] ? "fill-green-600" : "group-hover/btn:rotate-12"}`} 
+                      />
                     </button>
                   </div>
                 </div>

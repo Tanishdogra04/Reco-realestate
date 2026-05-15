@@ -2,9 +2,19 @@ const Enquiry = require('../models/Enquiry');
 
 // @desc    Create new enquiry
 // @route   POST /api/enquiries
-// @access  Public
+// @access  Private
 exports.createEnquiry = async (req, res) => {
   try {
+    const { property, name, phone, email, message } = req.body;
+
+    // Validation
+    if (!name || !phone || !email) {
+      return res.status(400).json({ success: false, error: 'Please provide all required fields (Name, Phone, Email)' });
+    }
+
+    // Add user to req.body
+    req.body.user = req.user.id;
+
     const enquiry = await Enquiry.create(req.body);
     res.status(201).json({ success: true, data: enquiry });
   } catch (err) {

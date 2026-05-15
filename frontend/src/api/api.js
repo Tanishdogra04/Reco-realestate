@@ -115,6 +115,16 @@ export const getEnquiries = async () => {
   }
 };
 
+export const createEnquiry = async (enquiryData) => {
+  try {
+    const response = await API.post('/enquiries', enquiryData);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating enquiry:', error.response?.data?.error || error.message);
+    throw error;
+  }
+};
+
 export const deleteProperty = async (id) => {
   try {
     const response = await API.delete(`/properties/${id}`);
@@ -152,6 +162,16 @@ export const createBooking = async (bookingData) => {
     return response.data.data;
   } catch (error) {
     console.error('Error creating booking:', error.response?.data?.error || error.message);
+    throw error;
+  }
+};
+
+export const createProperty = async (propertyData) => {
+  try {
+    const response = await API.post('/properties', propertyData);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating property:', error.response?.data?.error || error.message);
     throw error;
   }
 };

@@ -138,21 +138,8 @@ const Login = () => {
             </button>
           </form>
 
-          <div className="text-center my-6 text-gray-300 font-black uppercase text-[10px] tracking-widest flex items-center gap-4">
-            <div className="flex-1 h-px bg-gray-100" /> Secure Verification <div className="flex-1 h-px bg-gray-100" />
-          </div>
-
-          {/* Quick Admin Access (Special Request) */}
-          <button 
-            type="button"
-            onClick={() => setFormData({ email: "admin@gmail.com", password: "admin123" })}
-            className="mb-4 w-full border-2 border-purple-100 bg-purple-50 text-purple-600 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-all flex items-center justify-center gap-2"
-          >
-            <ShieldCheck size={14} /> Quick Admin Access (Demo)
-          </button>
-
           {/* Google & Apple Sign In */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 mt-4">
             <button className="flex-1 border rounded-full py-2.5 flex items-center justify-center gap-2 hover:bg-gray-50 transition-all text-sm font-medium">
               <img
                 src="https://www.svgrepo.com/show/355037/google.svg"

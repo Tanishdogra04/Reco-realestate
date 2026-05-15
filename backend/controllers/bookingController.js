@@ -6,7 +6,16 @@ const Property = require('../models/Property');
 // @access  Private/Admin
 exports.getBookings = async (req, res) => {
   try {
-    const bookings = await Booking.find().populate('property').populate('user');
+    let query;
+    
+    // If user is not admin, only fetch their own bookings
+    if (req.user.role !== 'admin') {
+      query = Booking.find({ user: req.user.id });
+    } else {
+      query = Booking.find();
+    }
+
+    const bookings = await query.populate('property').populate('user');
     res.status(200).json({ success: true, data: bookings });
   } catch (err) {
     res.status(500).json({ success: false, error: 'Server Error' });

@@ -12,12 +12,14 @@ import {
 } from "lucide-react";
 import CardProperty from "../components/Cardproperty";
 import { getAllApartments, sortByPriceLowToHigh, sortByPriceHighToLow } from "../data/properties";
+import { fetchProperties } from "../api/api";
 
 const CATEGORY_BANNERS = {
   residential: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop",
   commercial: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop",
   industrial: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop",
   plots: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1932&auto=format&fit=crop",
+  rentals: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop",
   all: "https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=2070&auto=format&fit=crop"
 };
 
@@ -27,11 +29,33 @@ const PropertyListingPage = () => {
   const initialCategory = pathCategory || searchParams.get("category") || searchParams.get("type") || "all";
   
   // States
-  const [properties, setProperties] = useState(getAllApartments());
+  const [properties, setProperties] = useState([]);
   const [filteredProperties, setFilteredProperties] = useState([]);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [sortBy, setSortBy] = useState("relevance");
   const [viewMode, setViewMode] = useState("grid");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadAllProperties = async () => {
+      setLoading(true);
+      try {
+        const backendProps = await fetchProperties().catch(() => []);
+        const staticProps = getAllApartments();
+        const normalizedBackend = backendProps.map(p => ({
+          ...p,
+          id: p._id 
+        }));
+        setProperties([...normalizedBackend, ...staticProps]);
+      } catch (err) {
+        console.error("Failed to load properties:", err);
+        setProperties(getAllApartments());
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadAllProperties();
+  }, []);
   
   // Filter States
   const [filters, setFilters] = useState({
@@ -45,7 +69,9 @@ const PropertyListingPage = () => {
     furnishing: "Any",
     facing: "Any",
     locality: "",
-    selectedAmenities: []
+    selectedAmenities: [],
+    commercialType: "Any",
+    grade: "Any"
   });
 
   useEffect(() => {
@@ -110,6 +136,16 @@ const PropertyListingPage = () => {
       );
     }
 
+    // Commercial Type
+    if (filters.category === "commercial" && filters.commercialType !== "Any") {
+      result = result.filter(p => p.title.toLowerCase().includes(filters.commercialType.toLowerCase()) || p.description?.toLowerCase().includes(filters.commercialType.toLowerCase()));
+    }
+
+    // Grade
+    if (filters.category === "commercial" && filters.grade !== "Any") {
+      result = result.filter(p => p.description?.toLowerCase().includes(filters.grade.toLowerCase()) || p.title.toLowerCase().includes(filters.grade.toLowerCase()));
+    }
+
     // Sort
     if (sortBy === "low") result = sortByPriceLowToHigh(result);
     if (sortBy === "high") result = sortByPriceHighToLow(result);
@@ -142,7 +178,9 @@ const PropertyListingPage = () => {
       furnishing: "Any",
       facing: "Any",
       locality: "",
-      selectedAmenities: []
+      selectedAmenities: [],
+      commercialType: "Any",
+      grade: "Any"
     });
   };
 
@@ -231,27 +269,97 @@ const PropertyListingPage = () => {
               </div>
             </div>
 
-            {/* Configuration */}
-            <div>
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-4">Configuration</label>
-              <div className="grid grid-cols-3 gap-2">
-                {["Any", "1", "2", "3", "4"].map((b) => (
-                  <button
-                    key={b}
-                    onClick={() => handleFilterChange("bhk", b)}
-                    className={`py-2 rounded-xl text-[10px] font-black border transition-all ${
-                      filters.bhk === b 
-                        ? "bg-green-600 text-white border-green-600" 
-                        : "bg-white text-gray-600 border-gray-100 hover:border-green-600"
-                    }`}
-                  >
-                    {b === "Any" ? b : `${b} BHK`}
-                  </button>
-                ))}
-              </div>
-            </div>
+            {/* Residential Specific Filters */}
+            {filters.category !== "commercial" && (
+              <>
+                {/* Configuration */}
+                <div>
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-4">Configuration</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {["Any", "1", "2", "3", "4"].map((b) => (
+                      <button
+                        key={b}
+                        onClick={() => handleFilterChange("bhk", b)}
+                        className={`py-2 rounded-xl text-[10px] font-black border transition-all ${
+                          filters.bhk === b 
+                            ? "bg-green-600 text-white border-green-600" 
+                            : "bg-white text-gray-600 border-gray-100 hover:border-green-600"
+                        }`}
+                      >
+                        {b === "Any" ? b : `${b} BHK`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-            {/* Possession Status */}
+                {/* Furnishing */}
+                <div>
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-4">Furnishing</label>
+                  <div className="flex flex-wrap gap-2">
+                    {["Any", "Furnished", "Semi-Furnished", "Unfurnished"].map((f) => (
+                      <button
+                        key={f}
+                        onClick={() => handleFilterChange("furnishing", f)}
+                        className={`px-3 py-2 rounded-xl text-[9px] font-black border transition-all ${
+                          filters.furnishing === f 
+                            ? "bg-green-600 text-white border-green-600" 
+                            : "bg-white text-gray-600 border-gray-100 hover:border-green-600"
+                        }`}
+                      >
+                        {f}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Commercial Specific Filters */}
+            {filters.category === "commercial" && (
+              <>
+                {/* Commercial Type */}
+                <div>
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-4">Asset Type</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {["Any", "Office", "Retail", "Showroom", "Warehouse"].map((t) => (
+                      <button
+                        key={t}
+                        onClick={() => handleFilterChange("commercialType", t)}
+                        className={`py-2 rounded-xl text-[10px] font-black border transition-all ${
+                          filters.commercialType === t 
+                            ? "bg-green-600 text-white border-green-600" 
+                            : "bg-white text-gray-600 border-gray-100 hover:border-green-600"
+                        }`}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Grade */}
+                <div>
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-4">Asset Grade</label>
+                  <div className="flex flex-wrap gap-2">
+                    {["Any", "Grade A", "Grade B", "Boutique"].map((g) => (
+                      <button
+                        key={g}
+                        onClick={() => handleFilterChange("grade", g)}
+                        className={`px-3 py-2 rounded-xl text-[9px] font-black border transition-all ${
+                          filters.grade === g 
+                            ? "bg-green-600 text-white border-green-600" 
+                            : "bg-white text-gray-600 border-gray-100 hover:border-green-600"
+                        }`}
+                      >
+                        {g}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Possession Status (Common) */}
             <div>
               <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-4">Possession</label>
               <div className="flex flex-wrap gap-2">
@@ -271,31 +379,16 @@ const PropertyListingPage = () => {
               </div>
             </div>
 
-            {/* Furnishing */}
-            <div>
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-4">Furnishing</label>
-              <div className="flex flex-wrap gap-2">
-                {["Any", "Furnished", "Semi-Furnished", "Unfurnished"].map((f) => (
-                  <button
-                    key={f}
-                    onClick={() => handleFilterChange("furnishing", f)}
-                    className={`px-3 py-2 rounded-xl text-[9px] font-black border transition-all ${
-                      filters.furnishing === f 
-                        ? "bg-green-600 text-white border-green-600" 
-                        : "bg-white text-gray-600 border-gray-100 hover:border-green-600"
-                    }`}
-                  >
-                    {f}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* Amenities Checklist */}
             <div>
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-4">Amenities</label>
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-4">
+                {filters.category === "commercial" ? "Business Amenities" : "Lifestyle Amenities"}
+              </label>
               <div className="space-y-2">
-                {["Gym", "Pool", "Club House", "Security", "Garden", "Spa"].map((a) => (
+                {(filters.category === "commercial" 
+                  ? ["High Speed Elevators", "24/7 Security", "Fiber Optic", "Server Room", "Double Height Lobby", "Ample Parking"]
+                  : ["Gym", "Pool", "Club House", "Security", "Garden", "Spa"]
+                ).map((a) => (
                   <label key={a} className="flex items-center gap-3 cursor-pointer group">
                     <input 
                       type="checkbox"
@@ -370,7 +463,12 @@ const PropertyListingPage = () => {
             </div>
           </div>
 
-          {filteredProperties.length > 0 ? (
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+              <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">Fetching Real-Estate Assets...</p>
+            </div>
+          ) : filteredProperties.length > 0 ? (
             <div className={viewMode === "grid" ? "grid grid-cols-1 lg:grid-cols-2 gap-8" : "space-y-8"}>
               {filteredProperties.map((p) => (
                 <CardProperty key={p.id} property={p} />

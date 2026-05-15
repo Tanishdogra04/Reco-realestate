@@ -53,14 +53,18 @@ const PostPropertyStep1 = () => {
     floors: "",
     unitsPerFloor: "",
     villaType: "",
+    price: "",
+    developer: "",
+    rera: "",
+    description: "",
   });
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleContinue = () => {
-    if (!formData.title || !formData.location || !formData.area) {
-      alert("Please fill all required fields");
+    if (!formData.title || !formData.location || !formData.area || !formData.price || !formData.description) {
+      alert("Please fill all required fields (Title, Location, Area, Price, Description)");
       return;
     }
 

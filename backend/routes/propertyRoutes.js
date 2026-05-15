@@ -13,12 +13,12 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 router
   .route('/')
   .get(getProperties)
-  .post(protect, authorize('broker', 'admin'), createProperty);
+  .post(protect, authorize('broker', 'admin', 'customer', 'agent', 'client'), createProperty);
 
 router
   .route('/:id')
   .get(getProperty)
-  .put(protect, authorize('broker', 'admin'), updateProperty)
-  .delete(protect, authorize('broker', 'admin'), deleteProperty);
+  .put(protect, authorize('broker', 'admin', 'customer', 'agent', 'client'), updateProperty)
+  .delete(protect, authorize('broker', 'admin', 'customer', 'agent', 'client'), deleteProperty);
 
 module.exports = router;

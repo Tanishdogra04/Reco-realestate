@@ -17,13 +17,13 @@ const solutionsData = [
     icon: <Home className="w-10 h-10 text-orange-500 mb-4" />,
     path: "/post-property",
     buttonText: "Post Property Free",
-    img: "https://images.unsplash.com/photo-1560026301-883a2461c3bc?q=80&w=1974&auto=format&fit=crop"
+    img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
   },
   {
     title: "Rent a Space",
     description: "Looking for a temporary home or office? Browse our verified rental listings for flexible, high-quality spaces.",
     icon: <Banknote className="w-10 h-10 text-blue-500 mb-4" />,
-    path: "/view",
+    path: "/view?category=rentals",
     buttonText: "Find Rentals",
     img: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop"
   },

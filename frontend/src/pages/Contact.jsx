@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { 
   Phone, 
   Mail, 
@@ -7,13 +7,44 @@ import {
   Clock, 
   MessageSquare,
   ShieldCheck,
-  Globe
+  Globe,
+  Loader2,
+  CheckCircle2
 } from "lucide-react";
+import { createEnquiry } from "../api/api";
 
 const Contact = () => {
-  const handleSubmit = (e) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    inquiryType: "Property Investment",
+    message: ""
+  });
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Message sent! Our advisors will contact you shortly.");
+    setLoading(true);
+    
+    try {
+      await createEnquiry(formData);
+      setSubmitted(true);
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        inquiryType: "Property Investment",
+        message: ""
+      });
+      // Show success for 5 seconds then reset
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch (error) {
+      alert("❌ Failed to send message. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -100,6 +131,18 @@ const Contact = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
+                {submitted && (
+                  <div className="bg-green-50 border border-green-100 p-4 rounded-2xl flex items-center gap-3 animate-fade-in mb-6">
+                    <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white shrink-0 shadow-lg shadow-green-200">
+                      <CheckCircle2 size={20} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-black text-green-800">Message Sent Successfully!</p>
+                      <p className="text-[10px] font-bold text-green-600 uppercase tracking-widest">Our advisors will contact you shortly.</p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Full Name</label>
@@ -107,6 +150,8 @@ const Contact = () => {
                       type="text" 
                       placeholder="e.g. Tanish Dogra"
                       required
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
                       className="w-full bg-gray-50 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-green-500 outline-none transition-all"
                     />
                   </div>
@@ -116,6 +161,8 @@ const Contact = () => {
                       type="email" 
                       placeholder="name@email.com"
                       required
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
                       className="w-full bg-gray-50 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-green-500 outline-none transition-all"
                     />
                   </div>
@@ -127,12 +174,18 @@ const Contact = () => {
                     <input 
                       type="tel" 
                       placeholder="+91 00000 00000"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
                       className="w-full bg-gray-50 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-green-500 outline-none transition-all"
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Inquiry Type</label>
-                    <select className="w-full bg-gray-50 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-green-500 outline-none transition-all appearance-none">
+                    <select 
+                      value={formData.inquiryType}
+                      onChange={(e) => setFormData({...formData, inquiryType: e.target.value})}
+                      className="w-full bg-gray-50 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-green-500 outline-none transition-all appearance-none"
+                    >
                       <option>Property Investment</option>
                       <option>Selling my Property</option>
                       <option>Commercial Leasing</option>
@@ -148,16 +201,28 @@ const Contact = () => {
                     rows="5"
                     placeholder="Tell us about your requirements..."
                     required
+                    value={formData.message}
+                    onChange={(e) => setFormData({...formData, message: e.target.value})}
                     className="w-full bg-gray-50 border-none rounded-3xl p-6 text-sm font-bold focus:ring-2 focus:ring-green-500 outline-none transition-all"
                   ></textarea>
                 </div>
 
                 <button 
                   type="submit"
-                  className="w-full md:w-auto px-10 py-5 bg-green-600 text-white rounded-[20px] text-xs font-black uppercase tracking-widest hover:bg-green-700 transition-all shadow-xl shadow-green-100 flex items-center justify-center gap-3 group"
+                  disabled={loading}
+                  className="w-full md:w-auto px-10 py-5 bg-green-600 text-white rounded-[20px] text-xs font-black uppercase tracking-widest hover:bg-green-700 transition-all shadow-xl shadow-green-100 flex items-center justify-center gap-3 group disabled:bg-gray-400"
                 >
-                  Send Message
-                  <Send className="w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      Send Message
+                      <Send className="w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                    </>
+                  )}
                 </button>
               </form>
             </div>

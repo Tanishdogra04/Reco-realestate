@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Download, Share2 } from "lucide-react";
+import { Download, Share2, Heart, BedDouble, Ruler, MapPin, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import newproperty from "/images/new-projectcard1.jpg";
 import ready from "/images/ready_card2.jpg";
@@ -12,7 +12,6 @@ import House1 from "/images/House1.jpg"
 import office from "/images/office.jpg";
 import land from "/images/land.jpg"
 import { apartmentListings } from "../data/properties";
-import { Heart } from "lucide-react";
 
 export default function PropertySection() {
 
@@ -263,7 +262,7 @@ export default function PropertySection() {
     {/* Residential Card */}
     <div className="property-card bg-white border border-yellow-400 rounded-xl overflow-hidden shadow-md" data-category="residential">
       <div className="relative">
-        <img src={House1} alt="Luxury Villa" className="w-full h-48 object-cover" />
+        <img src={apartmentListings.find(p => p.id === 1)?.image} alt="Luxury Villa" className="w-full h-48 object-cover" />
         <span className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
           Independent House
         </span>
@@ -289,8 +288,8 @@ export default function PropertySection() {
           <p><strong>Possession:</strong> Immediate</p>
         </div>
         <div className="flex justify-between space-x-2">
-          <Link to="/property/1" className="flex-1 bg-blue-100 text-blue-800 text-center text-sm font-medium py-2 rounded hover:bg-blue-200 transition">View Details</Link>
-          <a href="/image/house_3.jpg" download className="flex-1 flex items-center justify-center gap-2 bg-blue-100 text-blue-800 text-sm font-medium py-2 rounded hover:bg-blue-200 transition">
+          <Link to={`/property/1`} className="flex-1 bg-green-600 text-white text-center text-sm font-medium py-2 rounded hover:bg-green-700 transition shadow-lg shadow-green-100">View Details</Link>
+          <a href="/image/house_3.jpg" download className="flex-1 flex items-center justify-center gap-2 bg-green-50 text-green-700 text-sm font-medium py-2 rounded hover:bg-green-100 transition border border-green-100">
             <Download className="w-4 h-4" /><span>Brochure</span>
           </a>
         </div>
@@ -300,7 +299,7 @@ export default function PropertySection() {
     {/* Commercial Card */}
     <div className="property-card bg-white border border-yellow-400 rounded-xl overflow-hidden shadow-md" data-category="commercial">
       <div className="relative">
-        <img src={office} alt="Office Space" className="w-full h-48 object-cover" />
+        <img src={apartmentListings.find(p => p.id === 8)?.image} alt="Office Space" className="w-full h-48 object-cover" />
         <span className="absolute top-2 left-2 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded">
           Office Space
         </span>
@@ -326,8 +325,8 @@ export default function PropertySection() {
           <p><strong>Possession:</strong> Ready to Move</p>
         </div>
         <div className="flex justify-between space-x-2">
-          <Link to="/property/8" className="flex-1 bg-blue-100 text-blue-800 text-center text-sm font-medium py-2 rounded hover:bg-blue-200 transition">View Details</Link>
-          <a href="/image/office_brochure.pdf" download className="flex-1 flex items-center justify-center gap-2 bg-blue-100 text-blue-800 text-sm font-medium py-2 rounded hover:bg-blue-200 transition">
+          <Link to={`/property/8`} className="flex-1 bg-green-600 text-white text-center text-sm font-medium py-2 rounded hover:bg-green-700 transition shadow-lg shadow-green-100">View Details</Link>
+          <a href="/image/office_brochure.pdf" download className="flex-1 flex items-center justify-center gap-2 bg-green-50 text-green-700 text-sm font-medium py-2 rounded hover:bg-green-100 transition border border-green-100">
             <Download className="w-4 h-4" /><span>Brochure</span>
           </a>
         </div>
@@ -337,7 +336,7 @@ export default function PropertySection() {
     {/* Industrial Card */}
     <div className="property-card bg-white border border-yellow-400 rounded-xl overflow-hidden shadow-md" data-category="industrial">
       <div className="relative">
-        <img src={land} alt="Factory Land" className="w-full h-48 object-cover" />
+        <img src={apartmentListings.find(p => p.id === 15)?.image} alt="Factory Land" className="w-full h-48 object-cover" />
         <span className="absolute top-2 left-2 bg-purple-600 text-white text-xs font-bold px-2 py-1 rounded">
           Industrial Plot
         </span>
@@ -363,8 +362,8 @@ export default function PropertySection() {
           <p><strong>Possession:</strong> Immediate</p>
         </div>
         <div className="flex justify-between space-x-2">
-          <Link to="/property/15" className="flex-1 bg-blue-100 text-blue-800 text-center text-sm font-medium py-2 rounded hover:bg-blue-200 transition">View Details</Link>
-          <a href="/image/industrial_brochure.pdf" download className="flex-1 flex items-center justify-center gap-2 bg-blue-100 text-blue-800 text-sm font-medium py-2 rounded hover:bg-blue-200 transition">
+          <Link to={`/property/15`} className="flex-1 bg-green-600 text-white text-center text-sm font-medium py-2 rounded hover:bg-green-700 transition shadow-lg shadow-green-100">View Details</Link>
+          <a href="/image/industrial_brochure.pdf" download className="flex-1 flex items-center justify-center gap-2 bg-green-50 text-green-700 text-sm font-medium py-2 rounded hover:bg-green-100 transition border border-green-100">
             <Download className="w-4 h-4" /><span>Brochure</span>
           </a>
         </div>
@@ -374,7 +373,7 @@ export default function PropertySection() {
     {/* Investment Card */}
     <div className="property-card bg-white border border-yellow-400 rounded-xl overflow-hidden shadow-md" data-category="investment">
       <div className="relative">
-        <img src={land} alt="Investment Plot" className="w-full h-48 object-cover" />
+        <img src={apartmentListings.find(p => p.id === 16)?.image} alt="Investment Plot" className="w-full h-48 object-cover" />
         <span className="absolute top-2 left-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded">
           Investment Plot
         </span>
@@ -400,8 +399,8 @@ export default function PropertySection() {
           <p><strong>Possession:</strong> In 6 Months</p>
         </div>
         <div className="flex justify-between space-x-2">
-          <Link to="/property/16" className="flex-1 bg-blue-100 text-blue-800 text-center text-sm font-medium py-2 rounded hover:bg-blue-200 transition">View Details</Link>
-          <a href="/image/investment_brochure.pdf" download className="flex-1 flex items-center justify-center gap-2 bg-blue-100 text-blue-800 text-sm font-medium py-2 rounded hover:bg-blue-200 transition">
+          <Link to={`/property/16`} className="flex-1 bg-green-600 text-white text-center text-sm font-medium py-2 rounded hover:bg-green-700 transition shadow-lg shadow-green-100">View Details</Link>
+          <a href="/image/investment_brochure.pdf" download className="flex-1 flex items-center justify-center gap-2 bg-green-50 text-green-700 text-sm font-medium py-2 rounded hover:bg-green-100 transition border border-green-100">
             <Download className="w-4 h-4" /><span>Brochure</span>
           </a>
         </div>

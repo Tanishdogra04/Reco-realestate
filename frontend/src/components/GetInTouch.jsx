@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { User, Mail, Phone, MapPin, Building, MessageSquare, Send, CheckCircle } from "lucide-react";
+import { User, Mail, Phone, MapPin, Building, MessageSquare, Send, CheckCircle, Loader2 } from "lucide-react";
 import room from "/images/inner-room.jpg";
+import { createEnquiry } from "../api/api";
 
 const GetInTouch = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const user = JSON.parse(localStorage.getItem("user"));
   const isAuthenticated = !!localStorage.getItem("token");
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     fullName: user?.fullName || "",
@@ -24,7 +26,7 @@ const GetInTouch = () => {
     "w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-600 focus:bg-white transition-all duration-300";
   const iconClass = "absolute left-4 text-gray-400 w-5 h-5 pointer-events-none";
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isAuthenticated) {
       navigate("/login", { 
@@ -35,7 +37,41 @@ const GetInTouch = () => {
       });
       return;
     }
-    alert("✅ Success! Our real estate experts will connect with you shortly.");
+
+    setLoading(true);
+    try {
+      // Map fullName to name for the backend model
+      const submissionData = {
+        name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        city: formData.city,
+        propertyType: formData.propertyType,
+        budget: formData.budget,
+        message: formData.message,
+        user: user?._id
+      };
+
+      await createEnquiry(submissionData);
+      
+      alert("✅ Success! Our real estate experts will connect with you shortly.");
+      
+      // Reset form fields
+      setFormData({
+        fullName: user?.fullName || "",
+        email: user?.email || "",
+        phone: user?.phone || "",
+        city: "",
+        propertyType: "",
+        budget: "",
+        message: ""
+      });
+    } catch (error) {
+      alert("❌ Failed to send message. Please try again later.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -154,10 +190,20 @@ const GetInTouch = () => {
 
               <button
                 type="submit"
-                className="w-full flex items-center justify-center gap-2 bg-green-600 text-white font-semibold py-4 rounded-xl shadow-md hover:bg-green-700 transition-all duration-300 group"
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2 bg-green-600 text-white font-semibold py-4 rounded-xl shadow-md hover:bg-green-700 transition-all duration-300 group disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                <span>Request Consultation</span>
-                <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Sending...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Request Consultation</span>
+                    <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
               </button>
             </form>
           </div>

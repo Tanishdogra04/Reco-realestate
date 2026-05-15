@@ -42,6 +42,9 @@ import Commercial from "./pages/Commercial";
 import ForgotPassword from "./pages/ForgotPassword";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminLogin from "./pages/AdminLogin";
+import BuyProperty from "./pages/BuyProperty";
+import CheckoutSuccess from "./pages/CheckoutSuccess";
+import DeveloperPortfolio from "./pages/DeveloperPortfolio";
 
 function App() {
   return (
@@ -78,6 +81,23 @@ function App() {
                   <Route path="/view" element={<PropertyListingPage />} />
                   <Route path="/property/:id" element={<PropertyDetails />} />
                   <Route path="/detailsproperty" element={<Detailsproperty />} />
+
+                  <Route 
+                    path="/buy/:id" 
+                    element={
+                      <ProtectedRoute>
+                        <BuyProperty />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/booking-success" 
+                    element={
+                      <ProtectedRoute>
+                        <CheckoutSuccess />
+                      </ProtectedRoute>
+                    } 
+                  />
 
                   <Route 
                     path="/edit-profile" 
@@ -161,6 +181,7 @@ function App() {
                   <Route path="/solutions" element={<Solutions />} />
                   <Route path="/top-localities" element={<TopLocalitiesPage />} />
                   <Route path="/events" element={<EventsPage />} />
+                  <Route path="/developer-portfolio" element={<DeveloperPortfolio />} />
                 </Routes>
               </main>
 
