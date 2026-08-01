@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getApartmentById } from "../data/properties";
-import { createBooking } from "../api/api";
+import { createBooking, fetchPropertyById } from "../api/api";
 import { QRCodeSVG } from 'qrcode.react';
 import { 
   ShieldCheck, 
@@ -20,7 +20,8 @@ import {
 export default function BuyProperty() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const property = getApartmentById(id);
+  const [property, setProperty] = useState(null);
+  const [pageLoading, setPageLoading] = useState(true);
   const user = JSON.parse(localStorage.getItem("user"));
   
   const [loading, setLoading] = useState(false);
@@ -39,11 +40,39 @@ export default function BuyProperty() {
   });
   const [errors, setErrors] = useState({});
 
-  if (!property) {
-    return <div className="mt-24 text-center">Property not found</div>;
+  useEffect(() => {
+    const loadProperty = async () => {
+      setPageLoading(true);
+      try {
+        const staticProp = getApartmentById(id);
+        if (staticProp) {
+          setProperty(staticProp);
+        } else {
+          const backendProp = await fetchPropertyById(id);
+          setProperty(backendProp);
+        }
+      } catch (err) {
+        console.error("Failed to load property for purchase:", err);
+      } finally {
+        setPageLoading(false);
+      }
+    };
+    loadProperty();
+  }, [id]);
+
+  if (pageLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#fcfcfc]">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-green-600 border-t-transparent"></div>
+      </div>
+    );
   }
 
-  const basePrice = property.price;
+  if (!property) {
+    return <div className="mt-24 text-center text-red-600 font-bold">Property not found</div>;
+  }
+
+  const basePrice = property.price || 0;
   const stampDuty = basePrice * 0.05; // 5% simulated
   const registrationFees = 50000;
   const totalPrice = basePrice + stampDuty + registrationFees;
@@ -90,7 +119,7 @@ export default function BuyProperty() {
       }
 
       const bookingData = {
-        property: property.id, 
+        property: property._id || property.id, 
         user: user?._id || "645a1b2c3d4e5f6g7h8i9j0k", 
         amount: totalPrice,
         status: paymentMethod === "bank_transfer" ? "pending" : "completed",

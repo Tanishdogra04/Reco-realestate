@@ -12,8 +12,10 @@ exports.createEnquiry = async (req, res) => {
       return res.status(400).json({ success: false, error: 'Please provide all required fields (Name, Phone, Email)' });
     }
 
-    // Add user to req.body
-    req.body.user = req.user.id;
+    // Add user to req.body if authenticated
+    if (req.user) {
+      req.body.user = req.user.id;
+    }
 
     const enquiry = await Enquiry.create(req.body);
     res.status(201).json({ success: true, data: enquiry });

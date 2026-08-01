@@ -174,6 +174,7 @@ const Contact = () => {
                     <input 
                       type="tel" 
                       placeholder="+91 00000 00000"
+                      required
                       value={formData.phone}
                       onChange={(e) => setFormData({...formData, phone: e.target.value})}
                       className="w-full bg-gray-50 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-green-500 outline-none transition-all"

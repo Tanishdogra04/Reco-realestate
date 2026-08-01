@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { User, Mail, Phone, MapPin, Building, MessageSquare, Send, CheckCircle, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import room from "/images/inner-room.jpg";
 import { createEnquiry } from "../api/api";
 
@@ -10,6 +11,7 @@ const GetInTouch = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const isAuthenticated = !!localStorage.getItem("token");
   const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
     fullName: user?.fullName || "",
@@ -54,7 +56,7 @@ const GetInTouch = () => {
 
       await createEnquiry(submissionData);
       
-      alert("✅ Success! Our real estate experts will connect with you shortly.");
+      setShowSuccess(true);
       
       // Reset form fields
       setFormData({
@@ -182,6 +184,7 @@ const GetInTouch = () => {
                 <textarea
                   rows="4"
                   placeholder="Tell us about your specific requirements..."
+                  required
                   value={formData.message}
                   onChange={(e) => setFormData({...formData, message: e.target.value})}
                   className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-600 focus:bg-white transition-all duration-300 resize-none"
@@ -256,6 +259,42 @@ const GetInTouch = () => {
 
         </div>
       </div>
+
+      {/* Success Modal */}
+      <AnimatePresence>
+        {showSuccess && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowSuccess(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              transition={{ type: "spring", duration: 0.4 }}
+              className="bg-white max-w-md w-full rounded-3xl p-8 shadow-2xl border border-gray-100 text-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-16 h-16 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-green-100 shadow-sm">
+                <CheckCircle className="w-8 h-8" />
+              </div>
+              <h3 className="text-2xl font-black text-gray-900 tracking-tight mb-2 uppercase">Request Received</h3>
+              <p className="text-gray-500 font-bold text-sm leading-relaxed mb-8">
+                Thank you for reaching out! Our real estate advisors will contact you soon to guide you through your requirements.
+              </p>
+              <button
+                onClick={() => setShowSuccess(false)}
+                className="w-full bg-gray-900 hover:bg-green-600 text-white font-semibold py-3.5 rounded-xl shadow-lg transition-all duration-300 cursor-pointer"
+              >
+                Close
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };

@@ -110,7 +110,7 @@ const Navbar = () => {
             </nav>
 
             <div className="flex items-center gap-3 border-l border-black/5 pl-6">
-              {!token ? (
+              {(!token || !user) ? (
                 <Link 
                   to="/login" 
                   className="flex items-center gap-2 px-5 py-2.5 bg-white/60 hover:bg-gray-900 hover:text-white text-gray-900 rounded-full transition-all border border-black/5 text-[11px] font-black uppercase tracking-widest"
@@ -125,7 +125,7 @@ const Navbar = () => {
                     className="flex items-center gap-2 p-1.5 bg-white/60 hover:bg-white rounded-full transition-all border border-black/5"
                   >
                     <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white text-[10px] font-black uppercase tracking-widest">
-                      {user.fullName?.split(' ').map(n => n[0]).join('')}
+                      {user?.fullName?.split(' ').map(n => n[0]).join('') || 'U'}
                     </div>
                     <ChevronDown size={14} className={`text-gray-400 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
                   </button>
@@ -135,7 +135,7 @@ const Navbar = () => {
                     <div className="absolute right-0 mt-3 w-56 bg-white rounded-3xl shadow-2xl border border-black/5 overflow-hidden animate-fade-in z-[100]">
                       <div className="p-5 border-b border-gray-50 bg-gray-50/50">
                         <p className="text-[10px] font-black uppercase tracking-widest text-green-600 mb-1">Signed in as</p>
-                        <p className="text-sm font-black text-gray-900 truncate">{user.fullName}</p>
+                        <p className="text-sm font-black text-gray-900 truncate">{user?.fullName || 'User'}</p>
                       </div>
                       <div className="p-2">
                         <Link to="/edit-profile" className="flex items-center gap-3 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-2xl transition-all">
@@ -144,7 +144,7 @@ const Navbar = () => {
                         <Link to="/saved-properties" className="flex items-center gap-3 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-2xl transition-all">
                           <Heart size={16} /> Saved Properties
                         </Link>
-                        {user.role === 'admin' && (
+                        {user?.role === 'admin' && (
                           <Link to="/admin" className="flex items-center gap-3 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-purple-600 hover:bg-purple-50 rounded-2xl transition-all">
                             <ShieldCheck size={16} /> Admin Console
                           </Link>
@@ -205,16 +205,16 @@ const Navbar = () => {
               <div className="w-14 h-14 bg-green-600 rounded-2xl flex items-center justify-center text-white shadow-lg"><User size={24} /></div>
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-green-600 mb-1">Welcome</p>
-                {!token ? (
+                {(!token || !user) ? (
                   <Link to="/login" className="text-lg font-black text-gray-900 hover:underline">Sign In / Register</Link>
                 ) : (
-                  <p className="text-lg font-black text-gray-900">{user.fullName}</p>
+                  <p className="text-lg font-black text-gray-900">{user?.fullName || 'User'}</p>
                 )}
               </div>
             </div>
           </div>
           <nav className="flex-1 px-8 space-y-3 overflow-y-auto custom-scrollbar">
-            {token && user.role === 'admin' && (
+            {token && user?.role === 'admin' && (
               <Link to="/admin" className="group flex items-center gap-4 p-5 bg-purple-50 rounded-[24px] shadow-sm hover:bg-purple-600 transition-all duration-500" onClick={() => setMenuOpen(false)}>
                 <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-700"><ShieldCheck size={20} /></div>
                 <div className="flex-1"><p className="font-black text-[13px] text-purple-900 group-hover:text-white uppercase tracking-tight">Admin Console</p></div>

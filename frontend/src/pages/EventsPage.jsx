@@ -77,20 +77,20 @@ const categories = [
   {
     title: "Educational Workshops",
     desc: "Master the art of real estate with RERA, Tax, and Legal experts.",
-    icon: <Users className="text-blue-600" />,
-    color: "bg-blue-50"
+    icon: <Users className="text-green-700" />,
+    color: "bg-green-50"
   },
   {
     title: "Networking Dinners",
     desc: "Build connections that count with elite investors and developers.",
-    icon: <Star className="text-orange-500" />,
-    color: "bg-orange-50"
+    icon: <Star className="text-amber-700" />,
+    color: "bg-[#FFE5B4]/25"
   },
   {
     title: "Virtual Property Tours",
     desc: "Immersive 3D experiences from the comfort of your home.",
-    icon: <Video className="text-purple-600" />,
-    color: "bg-purple-50"
+    icon: <Video className="text-green-700" />,
+    color: "bg-[#C8FACC]/30"
   }
 ];
 
@@ -158,7 +158,7 @@ const EventsPage = () => {
   };
 
   return (
-    <div className="bg-[#FAFAFA] min-h-screen font-sans overflow-x-hidden">
+    <div className="bg-[#faf9f6] min-h-screen font-sans overflow-x-hidden">
       {/* Premium Toast Notification */}
       <AnimatePresence>
         {toast && (
@@ -243,13 +243,13 @@ const EventsPage = () => {
               transition={{ delay: 0.5 }}
               className="flex items-center gap-2 mb-4 sm:mb-6"
             >
-              <span className="w-8 sm:w-12 h-[1px] bg-green-500"></span>
-              <span className="text-green-500 font-bold tracking-[0.3em] uppercase text-[10px] sm:text-xs">Premium Experiences</span>
+              <span className="w-8 sm:w-12 h-[1px] bg-[#C8FACC]"></span>
+              <span className="text-[#C8FACC] font-bold tracking-[0.3em] uppercase text-[10px] sm:text-xs">Premium Experiences</span>
             </motion.div>
             
             <h1 className="text-4xl sm:text-6xl md:text-8xl font-black mb-6 sm:mb-8 leading-[1.1] sm:leading-[0.9] tracking-tighter">
               BEYOND THE <br className="hidden sm:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">TRANSACTION</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFE5B4] to-[#C8FACC]">TRANSACTION</span>
             </h1>
             
             <p className="text-base sm:text-lg md:text-xl text-gray-400 mb-8 sm:mb-12 leading-relaxed max-w-2xl font-light">
@@ -262,7 +262,7 @@ const EventsPage = () => {
                 className="group relative bg-white text-black px-8 sm:px-10 py-4 sm:py-5 rounded-full font-bold overflow-hidden transition-all text-sm sm:text-base"
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">Explore Calendar <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" /></span>
-                <div className="absolute inset-0 bg-green-500 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                <div className="absolute inset-0 bg-green-700 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
               </button>
               
               <button 
@@ -296,12 +296,12 @@ const EventsPage = () => {
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12">
             {[
-              { icon: <Users className="text-green-600" />, val: "50K+", label: "Investors Joined", desc: "India's largest prop-tech community" },
-              { icon: <Calendar className="text-blue-600" />, val: "120+", label: "Annual Events", desc: "Curated monthly experiences" },
-              { icon: <Star className="text-orange-600" />, val: "4.9/5", label: "User Satisfaction", desc: "Unmatched event quality" }
+              { icon: <Users className="text-green-700" />, val: "50K+", label: "Investors Joined", desc: "India's largest prop-tech community" },
+              { icon: <Calendar className="text-green-700" />, val: "120+", label: "Annual Events", desc: "Curated monthly experiences" },
+              { icon: <Star className="text-green-700" />, val: "4.9/5", label: "User Satisfaction", desc: "Unmatched event quality" }
             ].map((stat, i) => (
               <div key={i} className="flex flex-row md:flex-col items-center text-left md:text-left gap-4 group">
-                <div className="bg-gray-50 w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:bg-green-500 group-hover:text-white transition-colors duration-500 shrink-0">
+                <div className="bg-gray-50 w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:bg-green-700 group-hover:text-white transition-colors duration-500 shrink-0">
                   {stat.icon}
                 </div>
                 <div>
@@ -318,7 +318,7 @@ const EventsPage = () => {
       {/* Featured Event Highlight */}
       {featuredEvent && (
         <section className="py-12 sm:py-24 container mx-auto px-4 sm:px-6">
-          <div className="relative rounded-3xl sm:rounded-[3rem] overflow-hidden bg-black min-h-[500px] sm:h-[600px] flex items-center group flex-col sm:flex-row">
+          <div className="relative rounded-3xl sm:rounded-[3rem] overflow-hidden bg-black min-h-[500px] sm:h-[600px] flex items-center group flex-col sm:flex-row shadow-xl border border-gray-800/10">
             <img 
               src={featuredEvent.img} 
               className="absolute inset-0 w-full h-full object-cover opacity-60 sm:opacity-60 group-hover:scale-105 transition-transform duration-1000" 
@@ -327,7 +327,7 @@ const EventsPage = () => {
             <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black sm:bg-gradient-to-r sm:from-black sm:via-black/40 sm:to-transparent"></div>
             
             <div className="relative z-10 p-8 sm:p-12 md:p-20 max-w-2xl text-white mt-auto sm:mt-0">
-              <span className="inline-flex items-center gap-2 bg-green-500 text-black px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-black uppercase mb-4 sm:mb-8">
+              <span className="inline-flex items-center gap-2 bg-[#FFE5B4]/90 text-amber-950 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase mb-4 sm:mb-8 shadow-xs">
                 <Star size={12} fill="currentColor" /> Highlight of the Month
               </span>
               <h2 className="text-3xl sm:text-5xl font-black mb-4 sm:mb-6 leading-tight">{featuredEvent.title}</h2>
@@ -337,14 +337,14 @@ const EventsPage = () => {
               
               <div className="flex flex-wrap gap-4 sm:gap-8 mb-8 sm:mb-12">
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <Calendar className="text-green-500" size={18} />
+                  <Calendar className="text-[#C8FACC]" size={18} />
                   <div>
                     <p className="text-[8px] sm:text-[10px] text-gray-400 uppercase font-bold tracking-widest">Date</p>
                     <p className="text-xs sm:text-sm font-bold">{featuredEvent.date}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <MapPin className="text-green-500" size={18} />
+                  <MapPin className="text-[#C8FACC]" size={18} />
                   <div>
                     <p className="text-[8px] sm:text-[10px] text-gray-400 uppercase font-bold tracking-widest">Location</p>
                     <p className="text-xs sm:text-sm font-bold">{featuredEvent.location}</p>
@@ -354,7 +354,7 @@ const EventsPage = () => {
 
               <button 
                 onClick={() => handleRegister(featuredEvent.id)}
-                className="w-full sm:w-auto bg-green-500 text-black px-8 sm:px-12 py-4 sm:py-5 rounded-xl sm:rounded-2xl font-black hover:bg-white transition-all flex items-center justify-center gap-3 shadow-2xl shadow-green-500/20 text-sm sm:text-base"
+                className="w-full sm:w-auto bg-green-700 text-white px-8 sm:px-12 py-4 sm:py-5 rounded-xl sm:rounded-2xl font-black hover:bg-green-800 transition-all flex items-center justify-center gap-3 shadow-2xl shadow-green-700/20 text-sm sm:text-base border border-green-600"
               >
                 Secure Your VIP Pass <ArrowRight size={20} />
               </button>
@@ -378,7 +378,7 @@ const EventsPage = () => {
               <input 
                 type="text" 
                 placeholder="Search events..." 
-                className="w-full bg-white border-none rounded-xl sm:rounded-2xl py-3 sm:py-4 pl-12 pr-4 shadow-sm focus:ring-2 focus:ring-green-500 transition-all text-sm"
+                className="w-full bg-white border-none rounded-xl sm:rounded-2xl py-3 sm:py-4 pl-12 pr-4 shadow-sm focus:ring-2 focus:ring-green-700 transition-all text-sm"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -391,7 +391,7 @@ const EventsPage = () => {
                   key={btn}
                   onClick={() => setFilter(btn)}
                   className={`flex-1 sm:flex-none whitespace-nowrap px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-[10px] sm:text-sm font-bold transition-all ${
-                    filter === btn ? "bg-black text-white shadow-lg" : "text-gray-500 hover:text-black"
+                    filter === btn ? "bg-green-700 text-white shadow-md" : "text-gray-500 hover:text-green-700"
                   }`}
                 >
                   {btn}
@@ -428,28 +428,28 @@ const EventsPage = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   
                   <div className="absolute top-4 left-4 sm:top-6 sm:left-6 flex flex-col gap-1 sm:gap-2">
-                    <span className="bg-white/90 backdrop-blur-md text-black px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-[8px] sm:text-[10px] font-black uppercase tracking-wider shadow-sm">
+                    <span className="bg-white/90 backdrop-blur-md text-gray-800 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-[8px] sm:text-[10px] font-bold tracking-wider shadow-sm uppercase">
                       {event.type}
                     </span>
-                    <span className={`px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-[8px] sm:text-[10px] font-black uppercase tracking-wider shadow-sm ${
-                      event.category === 'Virtual' ? 'bg-blue-500 text-white' : 'bg-orange-500 text-white'
+                    <span className={`px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-[8px] sm:text-[10px] font-extrabold tracking-wider shadow-sm uppercase ${
+                      event.category === 'Virtual' ? 'bg-[#C8FACC] text-green-950' : 'bg-[#FFE5B4] text-amber-950'
                     }`}>
                       {event.category}
                     </span>
                   </div>
 
-                  <button className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full flex items-center justify-center opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 shadow-xl text-gray-900 hover:bg-green-500 hover:text-white">
+                  <button className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full flex items-center justify-center opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 shadow-xl text-gray-900 hover:bg-green-700 hover:text-white">
                     <Share2 size={16} />
                   </button>
                 </div>
 
                 <div className="p-6 sm:p-10 flex-1 flex flex-col">
-                  <div className="flex items-center gap-2 text-green-600 font-bold text-[10px] sm:text-xs mb-3 sm:mb-4">
+                  <div className="flex items-center gap-2 text-green-700 font-bold text-[10px] sm:text-xs mb-3 sm:mb-4">
                     <Calendar size={14} />
                     <span className="uppercase tracking-widest">{event.date}</span>
                   </div>
                   
-                  <h3 className="text-xl sm:text-2xl font-black text-gray-900 mb-3 sm:mb-4 leading-[1.2] group-hover:text-green-600 transition-colors">
+                  <h3 className="text-xl sm:text-2xl font-black text-gray-900 mb-3 sm:mb-4 leading-[1.2] group-hover:text-green-700 transition-colors">
                     {event.title}
                   </h3>
                   
@@ -466,8 +466,8 @@ const EventsPage = () => {
                       <MapPin size={16} className="text-gray-300" />
                       <span>{event.location}</span>
                     </div>
-                    <div className="flex items-center gap-3 text-green-600 text-[10px] sm:text-xs font-black">
-                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                    <div className="flex items-center gap-3 text-green-700 text-[10px] sm:text-xs font-bold">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-700 animate-pulse"></div>
                       <span>{event.attendees}</span>
                     </div>
                   </div>
@@ -475,7 +475,7 @@ const EventsPage = () => {
                   <div className="flex items-center gap-3 sm:gap-4 mt-auto">
                     <button 
                       onClick={() => handleRegister(event.id)}
-                      className="flex-1 bg-black text-white py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-xs sm:text-sm hover:bg-green-600 transition-all shadow-lg active:scale-95"
+                      className="flex-1 bg-black text-white py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-xs sm:text-sm hover:bg-green-700 transition-all shadow-lg active:scale-95"
                     >
                       Register Now
                     </button>
@@ -483,13 +483,13 @@ const EventsPage = () => {
                       onClick={() => toggleReminder(event.id, event.title)}
                       className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center transition-all group/btn ${
                         reminders[event.id] 
-                          ? "bg-green-100 text-green-600 shadow-inner" 
+                          ? "bg-green-50 text-green-700 shadow-inner" 
                           : "bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-black"
                       }`}
                     >
                       <Bell 
                         size={18} 
-                        className={`transition-transform ${reminders[event.id] ? "fill-green-600" : "group-hover/btn:rotate-12"}`} 
+                        className={`transition-transform ${reminders[event.id] ? "fill-green-700" : "group-hover/btn:rotate-12"}`} 
                       />
                     </button>
                   </div>
@@ -501,7 +501,7 @@ const EventsPage = () => {
       </section>
 
       {/* Categories & Experience types */}
-      <section className="py-20 sm:py-32 bg-[#F2F2F2]">
+      <section className="py-20 sm:py-32 bg-[#FFE5B4]/10">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex flex-col md:flex-row items-center md:items-end justify-between mb-12 sm:mb-20 gap-6 sm:gap-8 text-center md:text-left">
             <div className="max-w-2xl">
@@ -534,8 +534,8 @@ const EventsPage = () => {
       {/* Newsletter - Glassmorphism Final CTA */}
       <section className="py-20 sm:py-32 container mx-auto px-4 sm:px-6">
         <div className="relative rounded-[2.5rem] sm:rounded-[4rem] overflow-hidden bg-black py-16 sm:py-24 px-6 sm:px-10 md:px-20 text-center">
-          <div className="absolute top-0 right-0 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-green-500/20 rounded-full blur-[100px] sm:blur-[150px] -translate-y-1/2 translate-x-1/2"></div>
-          <div className="absolute bottom-0 left-0 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-blue-500/10 rounded-full blur-[100px] sm:blur-[150px] translate-y-1/2 -translate-x-1/2"></div>
+          <div className="absolute top-0 right-0 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-[#C8FACC]/10 rounded-full blur-[100px] sm:blur-[150px] -translate-y-1/2 translate-x-1/2"></div>
+          <div className="absolute bottom-0 left-0 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-[#FFE5B4]/10 rounded-full blur-[100px] sm:blur-[150px] translate-y-1/2 -translate-x-1/2"></div>
           
           <div className="relative z-10 max-w-3xl mx-auto">
             <motion.div
@@ -545,7 +545,7 @@ const EventsPage = () => {
             >
               <h2 className="text-3xl sm:text-5xl md:text-7xl font-black text-white mb-6 sm:mb-8 tracking-tighter leading-tight">
                 NEVER MISS A <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400">BEAT</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFE5B4] to-[#C8FACC]">BEAT</span>
               </h2>
               <p className="text-gray-400 text-base sm:text-xl mb-10 sm:mb-14 leading-relaxed font-light">
                 Subscribe to our elite mailing list. Get early access to property expos, private webinar links, and quarterly market insights.
@@ -558,12 +558,12 @@ const EventsPage = () => {
                     name="email"
                     required
                     placeholder="Enter your private email" 
-                    className="w-full bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl px-6 sm:px-8 py-4 sm:py-5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all font-medium text-sm sm:text-base"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl px-6 sm:px-8 py-4 sm:py-5 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-green-700 transition-all font-medium text-sm sm:text-base"
                   />
                 </div>
                 <button 
                   type="submit"
-                  className="bg-green-500 text-black px-8 sm:px-12 py-4 sm:py-5 rounded-xl sm:rounded-2xl font-black hover:bg-white transition-all shadow-2xl shadow-green-500/20 active:scale-95 text-sm sm:text-base"
+                  className="bg-green-700 hover:bg-green-800 text-white px-8 sm:px-12 py-4 sm:py-5 rounded-xl sm:rounded-2xl font-black transition-all shadow-2xl shadow-green-700/20 active:scale-95 text-sm sm:text-base"
                 >
                   Join Inner Circle
                 </button>
